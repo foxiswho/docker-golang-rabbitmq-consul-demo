@@ -57,8 +57,26 @@ GOOS=linux GOARCH=amd64 go build -o main main.go
 chmod 777 main
 ```
 
+## 编译 http
+```go
+cd demo-rabbitmq/demo003/http
+	
+	
+#win
+GOOS=windows GOARCH=amd64 go build -o main.exe main.go
+
+
+#编译后可以在 mac 上执行
+GOOS=darwin GOARCH=amd64 go build -o main main.go
+chmod 777 main
+
+#编译后可以在 linux 上执行
+GOOS=linux GOARCH=amd64 go build -o main main.go
+chmod 777 main
+```
+
 # 创建docker
-在两个终端中 分别创建 `publisher`和`consumer` docker
+在3个终端中 分别创建 `publisher`和`consumer`及`http`  docker
 `/Users/fox/go/gopath/src/github.com/foxiswho/docker-golang-rabbitmq-consul/demo-rabbitmq` 
 目录根据你自己目录进行相应的替换
 
@@ -72,4 +90,10 @@ docker run -it --rm=true  --net="macvlandgrc" --ip 10.2.1.61 -v /Users/fox/go/go
 ```docker
 
 docker run -it --rm=true  --net="macvlandgrc" --ip 10.2.1.61 -v /Users/fox/go/gopath/src/github.com/foxiswho/docker-golang-rabbitmq-consul/demo-rabbitmq:/demo-rabbitmq alpine:latest /demo-rabbitmq/demo003/consumer/main
+```
+
+## docker http 
+```docker
+
+docker run -it --rm=true  --net="macvlandgrc" --ip 10.2.1.51 -p 8080:8080 -v /Users/fox/go/gopath/src/github.com/foxiswho/docker-golang-rabbitmq-consul/demo-rabbitmq:/demo-rabbitmq alpine:latest /demo-rabbitmq/demo003/http/main
 ```

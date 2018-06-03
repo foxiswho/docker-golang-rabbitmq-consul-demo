@@ -17,14 +17,14 @@ const SERVICE_NAME = "go-mq-demo-publisher" //生产者
 const SERVICE_NAME_TAG = "demo"
 const SERVICE_PORT = 7561
 const SERVICE_IP = "10.2.1.61"
-const REGISTER_CENTER_IP = "10.2.1.100" //注册中心客户端
+const REGISTER_CENTER_ADDRESS = "10.2.1.100:8500" //注册中心客户端
 
 var amq_address string
 
 func main() {
 	//consul 客户端Ip寄相关配置
 	config := api.DefaultConfig()
-	config.Address = REGISTER_CENTER_IP
+	config.Address = REGISTER_CENTER_ADDRESS
 	client, err := api.NewClient(config)
 	if err != nil {
 		log.Fatal("consul client error : ", err)
