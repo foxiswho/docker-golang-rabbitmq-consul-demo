@@ -10,3 +10,4 @@ app/_dev.php
 /demo-rabbitmq/demo001/main
 /demo-rabbitmq/demo002/main
 /consul/consul.d/local.json
+main
