@@ -7,3 +7,6 @@ app/_dev.php
 *.rej
 .project
 /node_modules/*
+/demo-rabbitmq/demo001/main
+/demo-rabbitmq/demo002/main
+/consul/consul.d/local.json
