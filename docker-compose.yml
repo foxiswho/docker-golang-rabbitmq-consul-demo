@@ -89,7 +89,7 @@ services:
 
   mqConsumer:
         image: "alpine:latest"
-        command: /demo-rabbitmq/demo003/consumer/main
+        command: ["/demo-rabbitmq/demo003/wait-for-it.sh","/demo-rabbitmq/demo003/consumer/main"]
         volumes:
                 - ./demo-rabbitmq:/demo-rabbitmq
         networks:

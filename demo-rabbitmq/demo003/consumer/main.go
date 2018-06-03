@@ -10,6 +10,7 @@ import (
 	"github.com/streadway/amqp"
 	"strconv"
 	"net/http"
+	"time"
 )
 
 const Id = "go-mq-demo-consumer-001"
@@ -23,6 +24,52 @@ const REGISTER_CENTER_ADDRESS = "10.2.1.100:8500" //注册中心客户端
 var amq_address string
 
 func main() {
+	AgentService := agentService()
+	amq_address = ""
+	if AgentService == nil {
+		log.Println(MQ_SERVER_NAME + " not found")
+		time.Sleep(time.Second * 5)
+		log.Println("暂停5秒后再重新执行,等待 consulManger 加载配置完成")
+	} else {
+		//服务地址
+		amq_address = "amqp://guest:guest@" + AgentService.Address + ":" + strconv.Itoa(AgentService.Port) + "/"
+		err := SetupRMQ(amq_address) // amqp://用户名:密码@地址:端口号/host
+		if err != nil {
+			fmt.Println("err01 : ", err.Error())
+		}
+		err = Ping()
+
+		if err != nil {
+			fmt.Println("err02 : ", err.Error())
+		}
+		fmt.Println("receive message")
+		//监听消息，处理
+		err = Receive("first", "second", func(msg *string) {
+			fmt.Printf("receve msg is :%s\n", *msg)
+			log.Println("receve msg is :%s\n", *msg)
+		})
+
+		if err != nil {
+			fmt.Println("err04 : ", err.Error())
+		}
+
+		fmt.Println("1 - end")
+	}
+
+	http.HandleFunc("/check", consulCheck)
+	http.HandleFunc("/", send)
+	http.ListenAndServe(fmt.Sprintf(":%d", SERVICE_PORT), nil)
+}
+
+func consulCheck(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "consulCheck")
+}
+
+func send(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "not this")
+}
+
+func agentService() *api.AgentService {
 	//consul 客户端Ip寄相关配置
 	config := api.DefaultConfig()
 	config.Address = REGISTER_CENTER_ADDRESS
@@ -77,45 +124,7 @@ func main() {
 			}
 		}
 	}
-	amq_address = ""
-	if AgentService == nil {
-		log.Println(MQ_SERVER_NAME + " not found")
-	} else {
-		//服务地址
-		amq_address = "amqp://guest:guest@" + AgentService.Address + ":" + strconv.Itoa(AgentService.Port) + "/"
-		err := SetupRMQ(amq_address) // amqp://用户名:密码@地址:端口号/host
-		if err != nil {
-			fmt.Println("err01 : ", err.Error())
-		}
-		err = Ping()
-
-		if err != nil {
-			fmt.Println("err02 : ", err.Error())
-		}
-		fmt.Println("receive message")
-		//监听消息，处理
-		err = Receive("first", "second", func(msg *string) {
-			fmt.Printf("receve msg is :%s\n", *msg)
-		})
-
-		if err != nil {
-			fmt.Println("err04 : ", err.Error())
-		}
-
-		fmt.Println("1 - end")
-	}
-
-	http.HandleFunc("/check", consulCheck)
-	http.HandleFunc("/", send)
-	http.ListenAndServe(fmt.Sprintf(":%d", SERVICE_PORT), nil)
-}
-
-func consulCheck(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "consulCheck")
-}
-
-func send(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "not this")
+	return AgentService
 }
 
 //注销服务
