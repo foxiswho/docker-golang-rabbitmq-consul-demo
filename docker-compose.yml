@@ -78,11 +78,11 @@ services:
       networks:
               dgrcd:
                     aliases:
-                      - rabbitmq
+                      - rabbitmqManger
               dgrc:
                   ipv4_address: 10.2.1.99
                   aliases:
-                    - rabbitmq
+                    - rabbitmqManger
       depends_on:
             - consulServer1
             - consulManger
@@ -101,7 +101,6 @@ services:
                     aliases:
                       - mqConsumer
         depends_on:
-              - consulManger
               - rabbitmqManger
 
   mqPublisher:
