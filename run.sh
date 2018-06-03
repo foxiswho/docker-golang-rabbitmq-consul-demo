@@ -4,7 +4,7 @@ ROOT=$(pwd)
 
 echo "根目录是："$ROOT
 
-echo "编译 linux 中使用 publisher"
+echo "编译 linux 中使用 consumer"
 cd $ROOT/demo-rabbitmq/demo003/consumer
 GOOS=linux GOARCH=amd64 go build -o main main.go
 chmod 777 main

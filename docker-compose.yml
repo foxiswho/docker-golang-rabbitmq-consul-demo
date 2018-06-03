@@ -87,55 +87,55 @@ services:
             - consulServer1
             - consulManger
 
-    mqConsumer:
-          image: "alpine:latest"
-          command: /demo-rabbitmq/demo003/consumer/main
-          volumes:
-                  - ./demo-rabbitmq:/demo-rabbitmq
-          networks:
-                  dgrcd:
-                        aliases:
-                          - mqConsumer
-                  dgrc:
-                      ipv4_address: 10.2.1.51
+  mqConsumer:
+        image: "alpine:latest"
+        command: /demo-rabbitmq/demo003/consumer/main
+        volumes:
+                - ./demo-rabbitmq:/demo-rabbitmq
+        networks:
+                dgrcd:
                       aliases:
                         - mqConsumer
-          depends_on:
-                - consulManger
+                dgrc:
+                    ipv4_address: 10.2.1.51
+                    aliases:
+                      - mqConsumer
+        depends_on:
+              - consulManger
 
-    mqPublisher:
-          image: "alpine:latest"
-          command: /demo-rabbitmq/demo003/publisher/main
-          volumes:
-                  - ./demo-rabbitmq:/demo-rabbitmq
-          networks:
-                  dgrcd:
-                        aliases:
-                          - mqPublisher
-                  dgrc:
-                      ipv4_address: 10.2.1.61
+  mqPublisher:
+        image: "alpine:latest"
+        command: /demo-rabbitmq/demo003/publisher/main
+        volumes:
+                - ./demo-rabbitmq:/demo-rabbitmq
+        networks:
+                dgrcd:
                       aliases:
                         - mqPublisher
-          depends_on:
-                - mqConsumer
+                dgrc:
+                    ipv4_address: 10.2.1.61
+                    aliases:
+                      - mqPublisher
+        depends_on:
+              - mqConsumer
 
-    http:
-          image: "alpine:latest"
-          command: /demo-rabbitmq/demo003/http/main
-          ports:
-                  - "8090:8090"
-          volumes:
-                  - ./demo-rabbitmq:/demo-rabbitmq
-          networks:
-                  dgrcd:
-                        aliases:
-                          - http
-                  dgrc:
-                      ipv4_address: 10.2.1.41
+  http:
+        image: "alpine:latest"
+        command: /demo-rabbitmq/demo003/http/main
+        ports:
+                - "8090:8090"
+        volumes:
+                - ./demo-rabbitmq:/demo-rabbitmq
+        networks:
+                dgrcd:
                       aliases:
                         - http
-          depends_on:
-                - mqPublisher
+                dgrc:
+                    ipv4_address: 10.2.1.41
+                    aliases:
+                      - http
+        depends_on:
+              - mqPublisher
 
 #  mysql:
 #      build: ./mysql
