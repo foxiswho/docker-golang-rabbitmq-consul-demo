@@ -19,6 +19,16 @@ const SERVICE_PORT = "8090"                       //访问端口
 var publisher_url string
 
 func main() {
+
+	http.HandleFunc("/", index)
+	http.HandleFunc("/post", index)
+	err := http.ListenAndServe(":"+SERVICE_PORT, nil)
+	if err != nil {
+		log.Println("ListenAndServe: ", err)
+	}
+}
+
+func index(w http.ResponseWriter, r *http.Request) {
 	//consul 客户端Ip寄相关配置
 	config := api.DefaultConfig()
 	config.Address = REGISTER_CENTER_ADDRESS
@@ -62,15 +72,6 @@ func main() {
 		publisher_url = "http://" + AgentService.Address + ":" + strconv.Itoa(AgentService.Port) + "/"
 		log.Println("publisher_url: ", publisher_url)
 	}
-	http.HandleFunc("/", index)
-	http.HandleFunc("/post", index)
-	err = http.ListenAndServe(":"+SERVICE_PORT, nil)
-	if err != nil {
-		log.Println("ListenAndServe: ", err)
-	}
-}
-
-func index(w http.ResponseWriter, r *http.Request) {
 	if publisher_url == "" {
 		log.Println(SERVICE_NAME + " not found")
 		w.Write([]byte("POST:[ERROR]\n<br/>" + SERVICE_NAME + " not found"))

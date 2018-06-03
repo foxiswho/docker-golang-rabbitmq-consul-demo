@@ -23,68 +23,6 @@ const REGISTER_CENTER_ADDRESS = "10.2.1.100:8500" //注册中心客户端
 var amq_address string
 
 func main() {
-	//consul 客户端Ip寄相关配置
-	config := api.DefaultConfig()
-	config.Address = REGISTER_CENTER_ADDRESS
-	client, err := api.NewClient(config)
-	if err != nil {
-		log.Fatal("consul client error : ", err)
-	}
-	//创建一个新服务。
-	registration := new(api.AgentServiceRegistration)
-	registration.ID = Id
-	registration.Name = SERVICE_NAME
-	registration.Port = SERVICE_PORT
-	registration.Tags = []string{SERVICE_NAME_TAG}
-	registration.Address = SERVICE_IP
-
-	//增加check。
-	check := new(api.AgentServiceCheck)
-	check.HTTP = fmt.Sprintf("http://%s:%d%s", registration.Address, registration.Port, "/check")
-	//设置超时
-	check.Timeout = "5s"
-	//设置间隔
-	check.Interval = "5s"
-	//注册check服务。
-	registration.Check = check
-	log.Println("get check.HTTP:", check)
-
-	err = client.Agent().ServiceRegister(registration)
-	if err != nil {
-		log.Fatal("register server error : ", err)
-	}
-	/////////////////////////////////////////////////////////////////////////
-	servicesData, _, err := client.Health().Service(MQ_SERVER_NAME, "primary", true,
-		&api.QueryOptions{})
-	if err != nil {
-		log.Fatal("Health error : ", err)
-	}
-	var AgentService *api.AgentService
-	for _, entry := range servicesData {
-		if MQ_SERVER_NAME != entry.Service.Service {
-			continue
-		}
-		for _, health := range entry.Checks {
-			if health.ServiceName != MQ_SERVER_NAME {
-				continue
-			} else {
-				if api.HealthPassing == health.Status {
-					AgentService = entry.Service
-				} else {
-					log.Fatal("Services health : ", health.Status)
-				}
-
-			}
-		}
-	}
-	amq_address = ""
-	if AgentService == nil {
-		log.Println(MQ_SERVER_NAME + " not found")
-	} else {
-		//服务地址
-		amq_address = "amqp://guest:guest@" + AgentService.Address + ":" + strconv.Itoa(AgentService.Port) + "/"
-	}
-
 	http.HandleFunc("/check", consulCheck)
 	http.HandleFunc("/", send)
 	http.ListenAndServe(fmt.Sprintf(":%d", SERVICE_PORT), nil)
@@ -100,10 +38,73 @@ func send(w http.ResponseWriter, r *http.Request) {
 	if wd == "" {
 		fmt.Println("wd is empty")
 	} else {
+		/////////
+		//consul 客户端Ip寄相关配置
+		config := api.DefaultConfig()
+		config.Address = REGISTER_CENTER_ADDRESS
+		client, err := api.NewClient(config)
+		if err != nil {
+			log.Fatal("consul client error : ", err)
+		}
+		//创建一个新服务。
+		registration := new(api.AgentServiceRegistration)
+		registration.ID = Id
+		registration.Name = SERVICE_NAME
+		registration.Port = SERVICE_PORT
+		registration.Tags = []string{SERVICE_NAME_TAG}
+		registration.Address = SERVICE_IP
+
+		//增加check。
+		check := new(api.AgentServiceCheck)
+		check.HTTP = fmt.Sprintf("http://%s:%d%s", registration.Address, registration.Port, "/check")
+		//设置超时
+		check.Timeout = "5s"
+		//设置间隔
+		check.Interval = "5s"
+		//注册check服务。
+		registration.Check = check
+		log.Println("get check.HTTP:", check)
+
+		err = client.Agent().ServiceRegister(registration)
+		if err != nil {
+			log.Fatal("register server error : ", err)
+		}
+		/////////////////////////////////////////////////////////////////////////
+		servicesData, _, err := client.Health().Service(MQ_SERVER_NAME, "primary", true,
+			&api.QueryOptions{})
+		if err != nil {
+			log.Fatal("Health error : ", err)
+		}
+		var AgentService *api.AgentService
+		for _, entry := range servicesData {
+			if MQ_SERVER_NAME != entry.Service.Service {
+				continue
+			}
+			for _, health := range entry.Checks {
+				if health.ServiceName != MQ_SERVER_NAME {
+					continue
+				} else {
+					if api.HealthPassing == health.Status {
+						AgentService = entry.Service
+					} else {
+						log.Fatal("Services health : ", health.Status)
+					}
+
+				}
+			}
+		}
+		amq_address = ""
+		if AgentService == nil {
+			log.Println(MQ_SERVER_NAME + " not found")
+		} else {
+			//服务地址
+			amq_address = "amqp://guest:guest@" + AgentService.Address + ":" + strconv.Itoa(AgentService.Port) + "/"
+		}
+		/////////
 		fmt.Println("wd ：：",wd)
 		fmt.Println("amq_address：：", amq_address)
 
-		err := SetupRMQ(amq_address) // amqp://用户名:密码@地址:端口号/host
+		err = SetupRMQ(amq_address) // amqp://用户名:密码@地址:端口号/host
 		if err != nil {
 			fmt.Println("err01 : ", err.Error())
 		}
