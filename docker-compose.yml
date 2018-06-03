@@ -112,7 +112,7 @@ networks:
   dgrcd:
       driver: bridge
   dgrc:
-      name: macvlannpsrc
+      name: macvlandgrc
       driver: macvlan
 #      driver_opts:
 #              parent: eth0

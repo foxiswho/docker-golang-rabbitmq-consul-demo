@@ -1,7 +1,7 @@
 //来自
 //https://blog.csdn.net/i5suoi/article/details/78771433
 
-package demo002
+package main
 
 import (
 	"github.com/streadway/amqp"
@@ -157,7 +157,7 @@ func main() {
 	}
 
 	fmt.Println("receive message")
-
+	//监听消息，处理
 	err = Receive("first", "second", func (msg *string) {
 		fmt.Printf("receve msg is :%s\n", *msg)
 	})
@@ -171,6 +171,7 @@ func main() {
 	fmt.Println("send message")
 
 	for i := 0; i < 10; i++ {
+		//发送消息
 		err = Publish("first", "当前时间：" + time.Now().String())
 		if err != nil {
 			fmt.Println("err03 : ", err.Error())
