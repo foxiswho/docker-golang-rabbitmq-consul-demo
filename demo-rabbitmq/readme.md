@@ -80,20 +80,22 @@ chmod 777 main
 `/Users/fox/go/gopath/src/github.com/foxiswho/docker-golang-rabbitmq-consul/demo-rabbitmq` 
 目录根据你自己目录进行相应的替换
 
+## docker consumer 
+```docker
+
+docker run -it --rm=true  --net="macvlandgrc" --ip 10.2.1.51 -v /Users/fox/go/gopath/src/github.com/foxiswho/docker-golang-rabbitmq-consul/demo-rabbitmq:/demo-rabbitmq alpine:latest /demo-rabbitmq/demo003/consumer/main
+```
+
 ## docker publisher 
 ```docker
 
 docker run -it --rm=true  --net="macvlandgrc" --ip 10.2.1.61 -v /Users/fox/go/gopath/src/github.com/foxiswho/docker-golang-rabbitmq-consul/demo-rabbitmq:/demo-rabbitmq alpine:latest /demo-rabbitmq/demo003/publisher/main
 ```
 
-## docker consumer 
-```docker
 
-docker run -it --rm=true  --net="macvlandgrc" --ip 10.2.1.61 -v /Users/fox/go/gopath/src/github.com/foxiswho/docker-golang-rabbitmq-consul/demo-rabbitmq:/demo-rabbitmq alpine:latest /demo-rabbitmq/demo003/consumer/main
-```
 
 ## docker http 
 ```docker
 
-docker run -it --rm=true  --net="macvlandgrc" --ip 10.2.1.51 -p 8080:8080 -v /Users/fox/go/gopath/src/github.com/foxiswho/docker-golang-rabbitmq-consul/demo-rabbitmq:/demo-rabbitmq alpine:latest /demo-rabbitmq/demo003/http/main
+docker run -it --rm=true  --net="macvlandgrc" --ip 10.2.1.41 -p 8080:8080 -v /Users/fox/go/gopath/src/github.com/foxiswho/docker-golang-rabbitmq-consul/demo-rabbitmq:/demo-rabbitmq alpine:latest /demo-rabbitmq/demo003/http/main
 ```

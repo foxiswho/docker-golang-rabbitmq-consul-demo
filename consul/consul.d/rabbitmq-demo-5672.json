@@ -1,0 +1,18 @@
+{
+  "service": {
+    "id": "rabbitmq-001",
+    "name": "rabbitmq",
+    "tags": ["primary"],
+    "address": "10.2.1.99",
+    "port": 5672,
+    "checks": [
+      {
+        "id": "api",
+        "name": "HTTP API on port 15672",
+        "http": "http://10.2.1.99:15672",
+        "interval": "10s",
+        "timeout": "1s"
+      }
+    ]
+  }
+}

@@ -17,6 +17,7 @@ const SERVICE_NAME = "go-mq-demo-consumer" //消费者
 const SERVICE_NAME_TAG = "demo"
 const SERVICE_PORT = 7551
 const SERVICE_IP = "10.2.1.51"
+const MQ_SERVER_NAME = "go-mq"
 const REGISTER_CENTER_ADDRESS = "10.2.1.100:8500" //注册中心客户端
 
 var amq_address string
@@ -53,7 +54,7 @@ func main() {
 		log.Fatal("register server error : ", err)
 	}
 	/////////////////////////////////////////////////////////////////////////
-	servicesData, _, err := client.Health().Service(SERVICE_NAME, SERVICE_NAME_TAG, true,
+	servicesData, _, err := client.Health().Service(MQ_SERVER_NAME, "primary", true,
 		&api.QueryOptions{})
 	if err != nil {
 		log.Fatal("Health error : ", err)
