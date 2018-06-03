@@ -102,6 +102,7 @@ services:
                       - mqConsumer
         depends_on:
               - consulManger
+              - rabbitmqManger
 
   mqPublisher:
         image: "alpine:latest"
