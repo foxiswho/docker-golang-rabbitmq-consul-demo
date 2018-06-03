@@ -8,7 +8,6 @@ echo "编译 linux 中使用 consumer"
 cd $ROOT/demo-rabbitmq/demo003/consumer
 GOOS=linux GOARCH=amd64 go build -o main main.go
 chmod 777 main
-chmod 777 wait-for-it.sh
 
 echo "编译 linux 中使用 publisher"
 cd $ROOT/demo-rabbitmq/demo003/publisher
@@ -32,3 +31,9 @@ cd $ROOT
 
 
 docker-compose up
+
+
+#sleep 10 s
+#
+#docker restart docker-golang-rabbitmq-consul_mqConsumer_1
+#docker restart docker-golang-rabbitmq-consul_mqPublisher_1
