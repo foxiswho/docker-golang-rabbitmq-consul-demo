@@ -2,25 +2,23 @@ package main
 
 import (
 	"net/http"
-	"strings"
 	"time"
 	"fmt"
 	"github.com/hashicorp/consul/api"
 	"log"
 	"strconv"
+	"net/url"
+	"io/ioutil"
 )
 
 const SERVICE_NAME = "go-mq-demo-publisher" //生产者
 const SERVICE_NAME_TAG = "demo"
 const REGISTER_CENTER_ADDRESS = "10.2.1.100:8500" //注册中心客户端
-const SERVICE_PORT = "8080"             //访问端口
+const SERVICE_PORT = "8090"                       //访问端口
+
+var publisher_url string
 
 func main() {
-	http.HandleFunc("/", index)
-	http.ListenAndServe(fmt.Sprintf(":%d", SERVICE_PORT), nil)
-}
-
-func index(w http.ResponseWriter, r *http.Request) {
 	//consul 客户端Ip寄相关配置
 	config := api.DefaultConfig()
 	config.Address = REGISTER_CENTER_ADDRESS
@@ -36,6 +34,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 	var AgentService *api.AgentService
 	for _, entry := range servicesData {
+		log.Println("service entry Service",entry.Service)
+		log.Println("service entry Checks",entry.Checks)
 		if SERVICE_NAME != entry.Service.Service {
 			continue
 		}
@@ -45,6 +45,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 			} else {
 				if api.HealthPassing == health.Status {
 					AgentService = entry.Service
+					log.Println("entry.Service",entry.Service)
 				} else {
 					log.Fatal("Services health : ", health.Status)
 				}
@@ -53,13 +54,28 @@ func index(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	///////////////////////////////////////////////////////////
-	url := ""
+	publisher_url = ""
 	if AgentService == nil {
+		log.Println(SERVICE_NAME + " not found")
+		//w.Write([]byte("POST:[ERROR]\n<br/>" + SERVICE_NAME + " not found"))
+	} else {
+		publisher_url = "http://" + AgentService.Address + ":" + strconv.Itoa(AgentService.Port) + "/"
+		log.Println("publisher_url: ", publisher_url)
+	}
+	http.HandleFunc("/", index)
+	http.HandleFunc("/post", index)
+	err = http.ListenAndServe(":"+SERVICE_PORT, nil)
+	if err != nil {
+		log.Println("ListenAndServe: ", err)
+	}
+}
+
+func index(w http.ResponseWriter, r *http.Request) {
+	if publisher_url == "" {
 		log.Println(SERVICE_NAME + " not found")
 		w.Write([]byte("POST:[ERROR]\n<br/>" + SERVICE_NAME + " not found"))
 	} else {
 		//服务地址
-		url = "http://" + AgentService.Address + ":" + strconv.Itoa(AgentService.Port) + "/"
 		fmt.Fprintln(w, "send message")
 		str := "传入的是时间，时间：" + time.Now().String()
 		wd := r.PostForm.Get("wd")
@@ -69,22 +85,26 @@ func index(w http.ResponseWriter, r *http.Request) {
 			str = str + ",WD:" + wd
 		}
 
-		r.ParseForm()
-		r.Form.Add("wd", str)
-		bodystr := strings.TrimSpace(r.Form.Encode())
-		request, err := http.NewRequest("GET", url, strings.NewReader(bodystr))
-		if err != nil {
-			fmt.Println("error", err)
+		////////////////////////////////////////
+		postParam := url.Values{
+			"wd":      {str},
+			"demo": {"1demodemodemo"},
 		}
-		request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-		request.Header.Set("Connection", "Keep-Alive")
 
-		resp, err := http.DefaultClient.Do(request)
+		resp, err := http.PostForm(publisher_url, postParam)
 		if err != nil {
-			fmt.Println("error", err)
+			fmt.Println(err)
+			return
 		}
-		fmt.Println("http.DefaultClient.Do :", resp)
-		w.Write([]byte("POST:[WD]=>" + str))
+
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		fmt.Println(string(body))
 	}
 
 }

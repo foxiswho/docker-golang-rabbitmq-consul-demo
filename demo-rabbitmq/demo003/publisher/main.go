@@ -17,6 +17,7 @@ const SERVICE_NAME = "go-mq-demo-publisher" //生产者
 const SERVICE_NAME_TAG = "demo"
 const SERVICE_PORT = 7561
 const SERVICE_IP = "10.2.1.61"
+const MQ_SERVER_NAME = "rabbitmq"
 const REGISTER_CENTER_ADDRESS = "10.2.1.100:8500" //注册中心客户端
 
 var amq_address string
@@ -53,18 +54,18 @@ func main() {
 		log.Fatal("register server error : ", err)
 	}
 	/////////////////////////////////////////////////////////////////////////
-	servicesData, _, err := client.Health().Service(SERVICE_NAME, SERVICE_NAME_TAG, true,
+	servicesData, _, err := client.Health().Service(MQ_SERVER_NAME, "primary", true,
 		&api.QueryOptions{})
 	if err != nil {
 		log.Fatal("Health error : ", err)
 	}
 	var AgentService *api.AgentService
 	for _, entry := range servicesData {
-		if SERVICE_NAME != entry.Service.Service {
+		if MQ_SERVER_NAME != entry.Service.Service {
 			continue
 		}
 		for _, health := range entry.Checks {
-			if health.ServiceName != SERVICE_NAME {
+			if health.ServiceName != MQ_SERVER_NAME {
 				continue
 			} else {
 				if api.HealthPassing == health.Status {
@@ -78,7 +79,7 @@ func main() {
 	}
 	amq_address = ""
 	if AgentService == nil {
-		log.Println(SERVICE_NAME + " not found")
+		log.Println(MQ_SERVER_NAME + " not found")
 	} else {
 		//服务地址
 		amq_address = "amqp://guest:guest@" + AgentService.Address + ":" + strconv.Itoa(AgentService.Port) + "/"
@@ -95,10 +96,13 @@ func consulCheck(w http.ResponseWriter, r *http.Request) {
 
 func send(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "send message")
-	wd := r.PostForm.Get("wd")
+	wd := r.PostFormValue("wd")
 	if wd == "" {
 		fmt.Println("wd is empty")
 	} else {
+		fmt.Println("wd ：：",wd)
+		fmt.Println("amq_address：：", amq_address)
+
 		err := SetupRMQ(amq_address) // amqp://用户名:密码@地址:端口号/host
 		if err != nil {
 			fmt.Println("err01 : ", err.Error())
@@ -127,7 +131,7 @@ func send(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("err02 : ", err.Error())
 		}
 		fmt.Println("2 - end")
-		Close()
+		//Close()
 	}
 }
 

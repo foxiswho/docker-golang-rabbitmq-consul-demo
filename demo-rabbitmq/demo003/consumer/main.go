@@ -17,7 +17,7 @@ const SERVICE_NAME = "go-mq-demo-consumer" //消费者
 const SERVICE_NAME_TAG = "demo"
 const SERVICE_PORT = 7551
 const SERVICE_IP = "10.2.1.51"
-const MQ_SERVER_NAME = "go-mq"
+const MQ_SERVER_NAME = "rabbitmq"
 const REGISTER_CENTER_ADDRESS = "10.2.1.100:8500" //注册中心客户端
 
 var amq_address string
@@ -61,11 +61,11 @@ func main() {
 	}
 	var AgentService *api.AgentService
 	for _, entry := range servicesData {
-		if SERVICE_NAME != entry.Service.Service {
+		if MQ_SERVER_NAME != entry.Service.Service {
 			continue
 		}
 		for _, health := range entry.Checks {
-			if health.ServiceName != SERVICE_NAME {
+			if health.ServiceName != MQ_SERVER_NAME {
 				continue
 			} else {
 				if api.HealthPassing == health.Status {
@@ -79,7 +79,7 @@ func main() {
 	}
 	amq_address = ""
 	if AgentService == nil {
-		log.Println(SERVICE_NAME + " not found")
+		log.Println(MQ_SERVER_NAME + " not found")
 	} else {
 		//服务地址
 		amq_address = "amqp://guest:guest@" + AgentService.Address + ":" + strconv.Itoa(AgentService.Port) + "/"
