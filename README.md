@@ -84,7 +84,7 @@ https://fabiolb.net/
 
 https://github.com/fabiolb/fabio
 
-https://hub.docker.com/r/magiconair/fabio/
+https://hub.docker.com/r/fabiolb/fabio/
 
 
 fabio.properties 更多配置信息请看

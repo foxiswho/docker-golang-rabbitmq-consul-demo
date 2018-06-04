@@ -137,7 +137,7 @@ services:
         depends_on:
               - mqPublisher
   fabio:
-      image: "magiconair/fabio:latest"
+      image: "fabiolb/fabio:latest"
       ports:
         - "9998:9998"
         - "9999:9999"
