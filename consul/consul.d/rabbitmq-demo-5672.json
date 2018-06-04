@@ -2,7 +2,7 @@
   "service": {
     "id": "rabbitmq-001",
     "name": "rabbitmq",
-    "tags": ["primary"],
+    "tags": ["primary","urlprefix-/rabbitmq"],
     "address": "10.2.1.99",
     "port": 5672,
     "checks": [

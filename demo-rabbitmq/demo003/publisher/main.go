@@ -35,7 +35,7 @@ func main() {
 	registration.ID = Id
 	registration.Name = SERVICE_NAME
 	registration.Port = SERVICE_PORT
-	registration.Tags = []string{SERVICE_NAME_TAG}
+	registration.Tags = []string{SERVICE_NAME_TAG,"urlprefix-/"+SERVICE_NAME}
 	registration.Address = SERVICE_IP
 
 	//增加check。

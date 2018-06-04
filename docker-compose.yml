@@ -136,6 +136,23 @@ services:
                       - http
         depends_on:
               - mqPublisher
+  fabio:
+      image: "magiconair/fabio:latest"
+      ports:
+        - "9998:9998"
+        - "9999:9999"
+      volumes:
+        - ./fabio/fabio.properties:/etc/fabio/fabio.properties
+      networks:
+              dgrcd:
+                    aliases:
+                      - fabio
+              dgrc:
+                  ipv4_address: 10.2.1.110
+                  aliases:
+                    - fabio
+      depends_on:
+               - consulManger
 
 #  mysql:
 #      build: ./mysql

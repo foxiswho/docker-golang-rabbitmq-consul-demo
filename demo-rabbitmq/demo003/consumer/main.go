@@ -10,7 +10,6 @@ import (
 	"github.com/streadway/amqp"
 	"strconv"
 	"net/http"
-	"time"
 )
 
 const Id = "go-mq-demo-consumer-001"
@@ -25,11 +24,16 @@ var amq_address string
 
 func main() {
 	AgentService := agentService()
+	if AgentService == nil {
+		log.Println(MQ_SERVER_NAME + " not found，重新加载")
+		//重新加载
+		agentService()
+	}
 	amq_address = ""
 	if AgentService == nil {
-		log.Println(MQ_SERVER_NAME + " not found")
-		time.Sleep(time.Second * 5)
-		log.Println("暂停5秒后再重新执行,等待 consulManger 加载配置完成")
+		log.Println(MQ_SERVER_NAME + " not found,真的错误了")
+		//time.Sleep(time.Second * 5)
+		//log.Println("暂停5秒后再重新执行,等待 consulManger 加载配置完成")
 	} else {
 		//服务地址
 		amq_address = "amqp://guest:guest@" + AgentService.Address + ":" + strconv.Itoa(AgentService.Port) + "/"
@@ -82,7 +86,7 @@ func agentService() *api.AgentService {
 	registration.ID = Id
 	registration.Name = SERVICE_NAME
 	registration.Port = SERVICE_PORT
-	registration.Tags = []string{SERVICE_NAME_TAG}
+	registration.Tags = []string{SERVICE_NAME_TAG,"urlprefix-/"+SERVICE_NAME}
 	registration.Address = SERVICE_IP
 
 	//增加check。
