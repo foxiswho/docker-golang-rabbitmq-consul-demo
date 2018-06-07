@@ -64,6 +64,8 @@ services:
               dgrcd:
                 aliases:
                       - consulManger
+      labels:
+        SERVICE_IGNORE: 'true'
       depends_on:
             - consulServer1
 
@@ -153,6 +155,68 @@ services:
                     - fabio
       depends_on:
                - consulManger
+
+  registrator:
+    image: gliderlabs/registrator
+    depends_on:
+      - consul
+    command: consul://consulManger:8500
+    networks:
+            dgrcd:
+                  aliases:
+                    - registrator
+            dgrc:
+                ipv4_address: 10.2.1.111
+                aliases:
+                  - registrator
+    depends_on:
+                   - consulManger
+  prometheus:
+    image: quay.io/prometheus/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+            dgrcd:
+                  aliases:
+                    - prometheus
+            dgrc:
+                ipv4_address: 10.2.1.112
+                aliases:
+                  - prometheus
+    depends_on:
+         - consulManger
+  node_exporter:
+    image: quay.io/prometheus/node-exporter
+    pid: "host"
+    ports:
+    - 9100:9100
+    networks:
+            dgrcd:
+                  aliases:
+                    - node_exporter
+            dgrc:
+                ipv4_address: 10.2.1.113
+                aliases:
+                  - node_exporter
+  cadvisor:
+    image: google/cadvisor:latest
+    ports:
+      - 8080:8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+#      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+                dgrcd:
+                      aliases:
+                        - node_exporter
+                dgrc:
+                    ipv4_address: 10.2.1.114
+                    aliases:
+                      - node_exporter
+
 
 #  mysql:
 #      build: ./mysql

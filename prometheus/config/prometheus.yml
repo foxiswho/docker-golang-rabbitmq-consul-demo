@@ -1,0 +1,15 @@
+
+global:
+  scrape_interval: 5s
+  scrape_timeout: 5s
+  evaluation_interval: 15s
+scrape_configs:
+- job_name: consul_sd
+  metrics_path: /metrics
+  scheme: http
+  consul_sd_configs:
+    - server: consulManger:8500
+      scheme: http
+      services:
+        - node_exporter
+        - cadvisor
